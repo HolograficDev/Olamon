@@ -14,6 +14,8 @@ class WritingTab : public QWidget
 public:
     explicit WritingTab(QWidget *parent = nullptr);
 
+    void setStatus(const QString &text);   // shows in the box under the tools
+
 private:
     QWidget *createToolPanel();
     QWidget *createOptionsPanel();
@@ -22,6 +24,7 @@ private:
 
     QButtonGroup *toolGroup;
     QLabel *optionsTitle;
+    QLabel *statusLabel;
 };
 
 #endif // WRITINGTAB_H
