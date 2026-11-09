@@ -1,7 +1,8 @@
 #include "writingtab.h"
 #include "document.h"
 #include "newcanvasdialog.h"
-
+#include "canvasview.h"
+#include <QStackedWidget>
 #include <QPushButton>
 #include <QTimer>
 #include <QAbstractButton>
@@ -158,24 +159,64 @@ QWidget *WritingTab::createOptionsPanel()
 }
 
 // right side, the canvas goes here later
+// right side, either the empty screen or the canvas with its bottom bar
 QWidget *WritingTab::createCanvasArea()
 {
     QFrame *area = new QFrame;
     area->setObjectName("canvasArea");
-    area->setStyleSheet("#canvasArea { background: #3c3c3c; }");
+    area->setStyleSheet("#canvasArea { background: #3c3c3c; } "
+                        "#canvasArea QLabel { color: #aaaaaa; }");
 
-    canvasLabel = new QLabel("no canvas yet");
-    canvasLabel->setAlignment(Qt::AlignCenter);
-    canvasLabel->setStyleSheet("color: #aaaaaa;");
+    canvasStack = new QStackedWidget;
 
-    newCanvasButton = new QPushButton("New Canvas...");
-    connect(newCanvasButton, &QPushButton::clicked, this, &WritingTab::newCanvas);
+    // page 0, nothing created yet
+    QWidget *empty = new QWidget;
+    QLabel *emptyLabel = new QLabel("no canvas yet");
+    emptyLabel->setAlignment(Qt::AlignCenter);
+    QPushButton *emptyButton = new QPushButton("New Canvas...");
+    connect(emptyButton, &QPushButton::clicked, this, &WritingTab::newCanvas);
 
-    QVBoxLayout *layout = new QVBoxLayout(area);
-    layout->addStretch();
-    layout->addWidget(canvasLabel);
-    layout->addWidget(newCanvasButton, 0, Qt::AlignHCenter);
-    layout->addStretch();
+    QVBoxLayout *emptyLayout = new QVBoxLayout(empty);
+    emptyLayout->addStretch();
+    emptyLayout->addWidget(emptyLabel);
+    emptyLayout->addWidget(emptyButton, 0, Qt::AlignHCenter);
+    emptyLayout->addStretch();
+    canvasStack->addWidget(empty);
+
+    // page 1, the canvas and a small bar under it
+    QWidget *editor = new QWidget;
+    canvasView = new CanvasView;
+
+    QPushButton *newButton = new QPushButton("New...");
+    zoomLabel = new QLabel("100%");
+    QPushButton *fitButton = new QPushButton("Fit");
+    QPushButton *actualButton = new QPushButton("100%");
+
+    QHBoxLayout *bar = new QHBoxLayout;
+    bar->setContentsMargins(6, 4, 6, 4);
+    bar->addWidget(newButton);
+    bar->addStretch();
+    bar->addWidget(zoomLabel);
+    bar->addWidget(fitButton);
+    bar->addWidget(actualButton);
+
+    QVBoxLayout *editorLayout = new QVBoxLayout(editor);
+    editorLayout->setContentsMargins(0, 0, 0, 0);
+    editorLayout->setSpacing(0);
+    editorLayout->addWidget(canvasView, 1);
+    editorLayout->addLayout(bar);
+    canvasStack->addWidget(editor);
+
+    connect(newButton, &QPushButton::clicked, this, &WritingTab::newCanvas);
+    connect(fitButton, &QPushButton::clicked, canvasView, &CanvasView::fitPage);
+    connect(actualButton, &QPushButton::clicked, canvasView, &CanvasView::actualSize);
+    connect(canvasView, &CanvasView::zoomChanged, this, [this](double zoom) {
+        zoomLabel->setText(QString::number(qRound(zoom * 100)) + "%");
+    });
+
+    QVBoxLayout *areaLayout = new QVBoxLayout(area);
+    areaLayout->setContentsMargins(0, 0, 0, 0);
+    areaLayout->addWidget(canvasStack);
     return area;
 }
 
@@ -199,7 +240,9 @@ void WritingTab::newCanvas()
     delete document;
     document = new Document(dialog.settings(), this);
 
+    canvasStack->setCurrentIndex(1);
+    canvasView->setDocument(document);
+
     const CanvasSettings &s = document->settings();
-    canvasLabel->setText(QString("%1\n%2 x %3 px").arg(s.name).arg(s.width).arg(s.height));
-    setStatus("Created canvas " + s.name);
+    setStatus(QString("Created canvas %1 (%2 x %3 px)").arg(s.name).arg(s.width).arg(s.height));
 }

@@ -16,6 +16,8 @@ qt_add_executable(Olamon
     canvassettings.h
     document.h document.cpp
     newcanvasdialog.h newcanvasdialog.cpp
+    pageitem.h pageitem.cpp
+    canvasview.h canvasview.cpp
 )
 
 target_link_libraries(Olamon

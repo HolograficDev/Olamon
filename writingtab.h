@@ -6,8 +6,9 @@
 class QAbstractButton;
 class QButtonGroup;
 class QLabel;
+class QStackedWidget;
+class CanvasView;
 class Document;
-class QPushButton;
 
 class WritingTab : public QWidget
 {
@@ -17,7 +18,7 @@ public:
     explicit WritingTab(QWidget *parent = nullptr);
 
     void setStatus(const QString &text);   // shows in the box under the tools
-    void newCanvas();   // opens the dialog and makes a new document
+    void newCanvas();                      // opens the dialog and makes a new document
 
 private:
     QWidget *createToolPanel();
@@ -28,9 +29,11 @@ private:
     QButtonGroup *toolGroup;
     QLabel *optionsTitle;
     QLabel *statusLabel;
+
     Document *document = nullptr;
-    QLabel *canvasLabel;
-    QPushButton *newCanvasButton;
+    QStackedWidget *canvasStack;   // 0 = "no canvas yet", 1 = the editor
+    CanvasView *canvasView;
+    QLabel *zoomLabel;
 };
 
 #endif // WRITINGTAB_H
