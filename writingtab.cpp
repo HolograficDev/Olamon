@@ -1,5 +1,9 @@
 #include "writingtab.h"
+#include "document.h"
+#include "newcanvasdialog.h"
 
+#include <QPushButton>
+#include <QTimer>
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QFrame>
@@ -66,6 +70,7 @@ WritingTab::WritingTab(QWidget *parent)
     layout->setSpacing(0);
     layout->addWidget(leftSide);
     layout->addWidget(createCanvasArea(), 1);
+    QTimer::singleShot(0, this, &WritingTab::newCanvas);
 }
 
 // top part of the left panel, grid of icon buttons + status box
@@ -159,11 +164,18 @@ QWidget *WritingTab::createCanvasArea()
     area->setObjectName("canvasArea");
     area->setStyleSheet("#canvasArea { background: #3c3c3c; }");
 
+    canvasLabel = new QLabel("no canvas yet");
+    canvasLabel->setAlignment(Qt::AlignCenter);
+    canvasLabel->setStyleSheet("color: #aaaaaa;");
+
+    newCanvasButton = new QPushButton("New Canvas...");
+    connect(newCanvasButton, &QPushButton::clicked, this, &WritingTab::newCanvas);
+
     QVBoxLayout *layout = new QVBoxLayout(area);
-    QLabel *label = new QLabel("no canvas yet");
-    label->setAlignment(Qt::AlignCenter);
-    label->setStyleSheet("color: #aaaaaa;");
-    layout->addWidget(label);
+    layout->addStretch();
+    layout->addWidget(canvasLabel);
+    layout->addWidget(newCanvasButton, 0, Qt::AlignHCenter);
+    layout->addStretch();
     return area;
 }
 
@@ -176,4 +188,18 @@ void WritingTab::onToolPicked(QAbstractButton *button)
 void WritingTab::setStatus(const QString &text)
 {
     statusLabel->setText(text);
+}
+void WritingTab::newCanvas()
+{
+    NewCanvasDialog dialog(this);
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    // TODO ask to save the old one first once saving exists
+    delete document;
+    document = new Document(dialog.settings(), this);
+
+    const CanvasSettings &s = document->settings();
+    canvasLabel->setText(QString("%1\n%2 x %3 px").arg(s.name).arg(s.width).arg(s.height));
+    setStatus("Created canvas " + s.name);
 }

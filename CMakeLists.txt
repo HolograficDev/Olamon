@@ -13,6 +13,9 @@ qt_add_executable(Olamon
     README.md
     sidemenu.h sidemenu.cpp
     writingtab.h writingtab.cpp
+    canvassettings.h
+    document.h document.cpp
+    newcanvasdialog.h newcanvasdialog.cpp
 )
 
 target_link_libraries(Olamon
