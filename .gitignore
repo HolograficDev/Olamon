@@ -1,0 +1,6 @@
+CMakeLists.txt.user*
+build/
+build-*/
+*.autosave
+.DS_Store
+Thumbs.db
