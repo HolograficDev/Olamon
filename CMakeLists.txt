@@ -11,6 +11,7 @@ qt_add_executable(Olamon
     mainwindow.cpp
     mainwindow.h
     README.md
+    sidemenu.h sidemenu.cpp
 )
 
 target_link_libraries(Olamon
