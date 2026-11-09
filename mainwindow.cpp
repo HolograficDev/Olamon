@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "sidemenu.h"
-
+#include "writingtab.h"
 #include <QAction>
 #include <QKeySequence>
 #include <QLabel>
@@ -59,9 +59,14 @@ void MainWindow::createModeMenu()
     for (int i = 0; i < modeNames.size(); ++i) {
         sideMenu->addMode(modeNames[i]);
 
-        QLabel *page = new QLabel;
-        page->setAlignment(Qt::AlignCenter);
-        pages->addWidget(page);
+        // writing gets the real tab, the rest are still empty labels
+        if (i == 0) {
+            pages->addWidget(new WritingTab);
+        } else {
+            QLabel *page = new QLabel;
+            page->setAlignment(Qt::AlignCenter);
+            pages->addWidget(page);
+        }
 
         // test subtabs, remove later
         if (modeNames[i] == "Dictionary") {
@@ -90,7 +95,8 @@ void MainWindow::setTab(int mode, int sub, const QString &subName)
         name += " / " + subName;
 
     QLabel *page = qobject_cast<QLabel *>(pages->widget(mode));
-    page->setText(name + " (empty for now)");
+    if (page)
+        page->setText(name + " (empty for now)");
     setWindowTitle("Olamon - " + name);
 }
 
