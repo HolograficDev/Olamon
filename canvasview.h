@@ -7,6 +7,7 @@
 class Document;
 class PageItem;
 struct CanvasSettings;
+class Tool;
 
 class CanvasView : public QGraphicsView
 {
@@ -16,6 +17,7 @@ public:
     explicit CanvasView(QWidget *parent = nullptr);
 
     void setDocument(Document *document);
+    void setTool(Tool *tool);
 
 public slots:
     void fitPage();      // whole page visible
@@ -37,10 +39,11 @@ private:
     void buildPage(const CanvasSettings &settings);
     void zoomBy(double factor);
     double currentZoom() const;
+    void updateCursor();
 
     QGraphicsScene *scene;
     PageItem *page = nullptr;
-
+    Tool *activeTool = nullptr;
     bool panning = false;
     bool spaceDown = false;
     QPoint lastPanPos;

@@ -1,14 +1,15 @@
 #ifndef WRITINGTAB_H
 #define WRITINGTAB_H
 
+#include <QList>
 #include <QWidget>
 
-class QAbstractButton;
 class QButtonGroup;
 class QLabel;
 class QStackedWidget;
 class CanvasView;
 class Document;
+class Tool;
 
 class WritingTab : public QWidget
 {
@@ -24,14 +25,16 @@ private:
     QWidget *createToolPanel();
     QWidget *createOptionsPanel();
     QWidget *createCanvasArea();
-    void onToolPicked(QAbstractButton *button);
+    void setTool(int index);
 
+    QList<Tool *> tools;          // same order as the buttons
     QButtonGroup *toolGroup;
     QLabel *optionsTitle;
+    QStackedWidget *optionsStack; // one options widget per tool
     QLabel *statusLabel;
 
     Document *document = nullptr;
-    QStackedWidget *canvasStack;   // 0 = "no canvas yet", 1 = the editor
+    QStackedWidget *canvasStack;  // 0 = "no canvas yet", 1 = the editor
     CanvasView *canvasView;
     QLabel *zoomLabel;
 };

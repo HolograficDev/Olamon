@@ -1,7 +1,7 @@
 #include "canvasview.h"
 #include "document.h"
 #include "pageitem.h"
-
+#include "tool.h"
 #include <QEnterEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -37,7 +37,28 @@ void CanvasView::setDocument(Document *document)
     // wait a tick so the view has its real size before fitting
     QTimer::singleShot(0, this, &CanvasView::fitPage);
 }
+void CanvasView::setTool(Tool *tool)
+{
+    if (activeTool)
+        activeTool->deactivated();
+    activeTool = tool;
+    if (activeTool)
+        activeTool->activated();
+    updateCursor();
+}
 
+// hand cursors win over the tool cursor while panning
+void CanvasView::updateCursor()
+{
+    if (panning)
+        viewport()->setCursor(Qt::ClosedHandCursor);
+    else if (spaceDown)
+        viewport()->setCursor(Qt::OpenHandCursor);
+    else if (activeTool)
+        viewport()->setCursor(activeTool->cursor());
+    else
+        viewport()->unsetCursor();
+}
 void CanvasView::buildPage(const CanvasSettings &settings)
 {
     scene->clear();   // deletes the old page too
@@ -99,10 +120,13 @@ void CanvasView::mousePressEvent(QMouseEvent *event)
     if (wantsPan) {
         panning = true;
         lastPanPos = event->pos();
-        viewport()->setCursor(Qt::ClosedHandCursor);
+        updateCursor();
         event->accept();
         return;
     }
+
+    if (activeTool && event->button() == Qt::LeftButton)
+        activeTool->mousePressed(mapToScene(event->pos()));
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -116,6 +140,9 @@ void CanvasView::mouseMoveEvent(QMouseEvent *event)
         event->accept();
         return;
     }
+
+    if (activeTool)
+        activeTool->mouseMoved(mapToScene(event->pos()));
     QGraphicsView::mouseMoveEvent(event);
 }
 
@@ -123,13 +150,13 @@ void CanvasView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (panning && (event->button() == Qt::MiddleButton || event->button() == Qt::LeftButton)) {
         panning = false;
-        if (spaceDown)
-            viewport()->setCursor(Qt::OpenHandCursor);
-        else
-            viewport()->unsetCursor();
+        updateCursor();
         event->accept();
         return;
     }
+
+    if (activeTool && event->button() == Qt::LeftButton)
+        activeTool->mouseReleased(mapToScene(event->pos()));
     QGraphicsView::mouseReleaseEvent(event);
 }
 
@@ -137,7 +164,7 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         spaceDown = true;
-        viewport()->setCursor(Qt::OpenHandCursor);
+        updateCursor();
         return;
     }
     QGraphicsView::keyPressEvent(event);
@@ -147,13 +174,11 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         spaceDown = false;
-        if (!panning)
-            viewport()->unsetCursor();
+        updateCursor();
         return;
     }
     QGraphicsView::keyReleaseEvent(event);
 }
-
 // grab focus when the mouse is over the canvas so space works without clicking first
 void CanvasView::enterEvent(QEnterEvent *event)
 {

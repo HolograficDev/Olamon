@@ -21,6 +21,10 @@ qt_add_executable(Olamon
     canvasview.h canvasview.cpp
     fontmanager.h fontmanager.cpp
     resources.qrc
+    tool.h tool.cpp
+    drawparagraphtool.h drawparagraphtool.cpp
+    texttool.h texttool.cpp
+    transformtool.h transformtool.cpp
 )
 
 target_link_libraries(Olamon

@@ -17,6 +17,9 @@
 #include <QPixmap>
 #include <QSplitter>
 #include <QToolButton>
+#include "drawparagraphtool.h"
+#include "texttool.h"
+#include "transformtool.h"
 #include <QVBoxLayout>
 
 // draws a tool icon in code, swap this for svg files later
@@ -72,10 +75,12 @@ WritingTab::WritingTab(QWidget *parent)
     layout->setSpacing(0);
     layout->addWidget(leftSide);
     layout->addWidget(createCanvasArea(), 1);
+
+    setTool(0);
     QTimer::singleShot(0, this, &WritingTab::newCanvas);
 }
-
 // top part of the left panel, grid of icon buttons + status box
+
 QWidget *WritingTab::createToolPanel()
 {
     QFrame *panel = new QFrame;
@@ -90,19 +95,19 @@ QWidget *WritingTab::createToolPanel()
     QVBoxLayout *layout = new QVBoxLayout(panel);
     layout->setContentsMargins(8, 8, 8, 8);
 
+    // order here is the order of the buttons, the icons in drawToolIcon match it
+    tools = {new DrawParagraphTool(this), new TextTool(this), new TransformTool(this)};
+
     toolGroup = new QButtonGroup(this);
     toolGroup->setExclusive(true);
 
     QGridLayout *grid = new QGridLayout;
     grid->setSpacing(6);
-
-    // placeholders for now, real tools come later
-    QStringList tools = {"Draw Paragraph", "Text Tool", "Transform"};
     const int columns = 4;
 
     for (int i = 0; i < tools.size(); ++i) {
         QToolButton *btn = new QToolButton;
-        btn->setToolTip(tools[i]);
+        btn->setToolTip(tools[i]->name());
         btn->setCheckable(true);
         btn->setFixedSize(44, 44);
         btn->setIconSize(QSize(28, 28));
@@ -117,7 +122,7 @@ QWidget *WritingTab::createToolPanel()
         icon.addPixmap(checked, QIcon::Active, QIcon::On);
         btn->setIcon(icon);
 
-        toolGroup->addButton(btn);
+        toolGroup->addButton(btn, i);
         grid->addWidget(btn, i / columns, i % columns);
     }
     grid->setColumnStretch(columns, 1);   // keeps buttons packed to the left
@@ -131,13 +136,12 @@ QWidget *WritingTab::createToolPanel()
     statusLabel->setStyleSheet("padding: 4px; border: 1px solid palette(mid); border-radius: 3px;");
     layout->addWidget(statusLabel);
 
-    connect(toolGroup, &QButtonGroup::buttonClicked, this, &WritingTab::onToolPicked);
-
-    toolGroup->buttons().first()->setChecked(true);
+    connect(toolGroup, &QButtonGroup::idClicked, this, &WritingTab::setTool);
+    toolGroup->button(0)->setChecked(true);
     return panel;
 }
 
-// bottom part, shows settings of the picked tool
+// bottom part, shows the settings of the picked tool
 QWidget *WritingTab::createOptionsPanel()
 {
     QFrame *panel = new QFrame;
@@ -150,18 +154,11 @@ QWidget *WritingTab::createOptionsPanel()
     optionsTitle->setStyleSheet("font-weight: bold;");
     layout->addWidget(optionsTitle);
 
-    QLabel *hint = new QLabel("tool settings will show up here");
-    hint->setWordWrap(true);
-    layout->addWidget(hint);
-    // temporary font test, remove later
-    for (int set = 0; set <= 3; ++set) {
-        QLabel *test = new QLabel(QString("arg bir kit dun (%1)").arg(set));
-        test->setFont(FontManager::font(22, set));
-        layout->addWidget(test);
-    }
-    layout->addStretch();
+    optionsStack = new QStackedWidget;
+    for (Tool *tool : tools)
+        optionsStack->addWidget(tool->optionsWidget());
+    layout->addWidget(optionsStack, 1);
 
-    onToolPicked(toolGroup->checkedButton());
     return panel;
 }
 
@@ -227,10 +224,13 @@ QWidget *WritingTab::createCanvasArea()
     return area;
 }
 
-void WritingTab::onToolPicked(QAbstractButton *button)
+void WritingTab::setTool(int index)
 {
-    optionsTitle->setText(button->toolTip() + " options");
-    setStatus("Tool: " + button->toolTip());
+    Tool *tool = tools[index];
+    optionsTitle->setText(tool->name() + " options");
+    optionsStack->setCurrentIndex(index);
+    canvasView->setTool(tool);
+    setStatus("Tool: " + tool->name());
 }
 
 void WritingTab::setStatus(const QString &text)
