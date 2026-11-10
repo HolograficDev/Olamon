@@ -8,24 +8,39 @@ set(CMAKE_AUTORCC ON)
 
 qt_add_executable(Olamon
     WIN32 MACOSX_BUNDLE
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
     README.md
-    sidemenu.h sidemenu.cpp
-    writingtab.h writingtab.cpp
-    canvassettings.h
-    document.h document.cpp
-    newcanvasdialog.h newcanvasdialog.cpp
-    pageitem.h pageitem.cpp
-    canvasview.h canvasview.cpp
-    fontmanager.h fontmanager.cpp
-    resources.qrc
-    tool.h tool.cpp
-    drawparagraphtool.h drawparagraphtool.cpp
-    texttool.h texttool.cpp
-    transformtool.h transformtool.cpp
+    resources/resources.qrc
+
+    src/main.cpp
+
+    src/app/mainwindow.h src/app/mainwindow.cpp
+    src/app/sidemenu.h src/app/sidemenu.cpp
+
+    src/core/canvassettings.h
+    src/core/document.h src/core/document.cpp
+    src/core/fontmanager.h src/core/fontmanager.cpp
+
+    src/writing/writingtab.h src/writing/writingtab.cpp
+    src/writing/canvasview.h src/writing/canvasview.cpp
+    src/writing/pageitem.h src/writing/pageitem.cpp
+    src/writing/newcanvasdialog.h src/writing/newcanvasdialog.cpp
+
+    src/writing/tools/tool.h src/writing/tools/tool.cpp
+    src/writing/tools/drawparagraphtool.h src/writing/tools/drawparagraphtool.cpp
+    src/writing/tools/texttool.h src/writing/tools/texttool.cpp
+    src/writing/tools/transformtool.h src/writing/tools/transformtool.cpp
 )
+
+# lets the code keep using plain includes like "document.h"
+target_include_directories(Olamon PRIVATE
+    src/app
+    src/core
+    src/writing
+    src/writing/tools
+)
+
+# qt headers get compiled once and reused, makes builds a lot faster
+target_precompile_headers(Olamon PRIVATE <QtWidgets>)
 
 target_link_libraries(Olamon
     PRIVATE
