@@ -1,4 +1,5 @@
 #include "writingtab.h"
+#include "fontmanager.h"
 #include "document.h"
 #include "newcanvasdialog.h"
 #include "canvasview.h"
@@ -152,6 +153,12 @@ QWidget *WritingTab::createOptionsPanel()
     QLabel *hint = new QLabel("tool settings will show up here");
     hint->setWordWrap(true);
     layout->addWidget(hint);
+    // temporary font test, remove later
+    for (int set = 0; set <= 3; ++set) {
+        QLabel *test = new QLabel(QString("arg bir kit dun (%1)").arg(set));
+        test->setFont(FontManager::font(22, set));
+        layout->addWidget(test);
+    }
     layout->addStretch();
 
     onToolPicked(toolGroup->checkedButton());

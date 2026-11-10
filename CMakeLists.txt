@@ -4,6 +4,7 @@ project(Olamon LANGUAGES CXX)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
+set(CMAKE_AUTORCC ON)
 
 qt_add_executable(Olamon
     WIN32 MACOSX_BUNDLE
@@ -18,6 +19,8 @@ qt_add_executable(Olamon
     newcanvasdialog.h newcanvasdialog.cpp
     pageitem.h pageitem.cpp
     canvasview.h canvasview.cpp
+    fontmanager.h fontmanager.cpp
+    resources.qrc
 )
 
 target_link_libraries(Olamon
