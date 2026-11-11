@@ -29,6 +29,8 @@ qt_add_executable(Olamon
     src/writing/tools/drawparagraphtool.h src/writing/tools/drawparagraphtool.cpp
     src/writing/tools/texttool.h src/writing/tools/texttool.cpp
     src/writing/tools/transformtool.h src/writing/tools/transformtool.cpp
+    src/writing/paragraphitem.h src/writing/paragraphitem.cpp
+    src/writing/paragraphitem.h src/writing/paragraphitem.cpp
 )
 
 # lets the code keep using plain includes like "document.h"

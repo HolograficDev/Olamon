@@ -18,6 +18,7 @@ public:
 
     void setDocument(Document *document);
     void setTool(Tool *tool);
+    PageItem *pageItem() const { return page; }
 
 public slots:
     void fitPage();      // whole page visible

@@ -18,7 +18,10 @@ QWidget *Tool::optionsWidget()
         options = createOptionsWidget();
     return options;
 }
-
+void Tool::setView(CanvasView *canvasView)
+{
+    view = canvasView;
+}
 // the mouse ones do nothing unless a tool overrides them
 void Tool::activated() {}
 void Tool::deactivated() {}

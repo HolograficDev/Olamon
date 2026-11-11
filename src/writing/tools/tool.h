@@ -6,6 +6,7 @@
 #include <Qt>
 
 class QWidget;
+class CanvasView;
 
 // base class for everything in the tool panel
 class Tool : public QObject
@@ -18,6 +19,9 @@ public:
     virtual QString name() const = 0;
     virtual Qt::CursorShape cursor() const;
 
+    // tools need the canvas to add things to the page
+    void setView(CanvasView *canvasView);
+
     // the settings shown in the options panel, made the first time it's asked for
     QWidget *optionsWidget();
 
@@ -29,8 +33,13 @@ public:
     virtual void mouseMoved(const QPointF &scenePos);
     virtual void mouseReleased(const QPointF &scenePos);
 
+signals:
+    void status(const QString &text);   // shows in the status box
+
 protected:
     virtual QWidget *createOptionsWidget() = 0;
+
+    CanvasView *view = nullptr;
 
 private:
     QWidget *options = nullptr;

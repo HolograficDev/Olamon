@@ -75,7 +75,11 @@ WritingTab::WritingTab(QWidget *parent)
     layout->setSpacing(0);
     layout->addWidget(leftSide);
     layout->addWidget(createCanvasArea(), 1);
-
+    // tools need the canvas, and report back to the status box
+    for (Tool *tool : tools) {
+        tool->setView(canvasView);
+        connect(tool, &Tool::status, this, &WritingTab::setStatus);
+    }
     setTool(0);
     QTimer::singleShot(0, this, &WritingTab::newCanvas);
 }
