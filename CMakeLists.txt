@@ -19,6 +19,7 @@ qt_add_executable(Olamon
     src/core/canvassettings.h
     src/core/document.h src/core/document.cpp
     src/core/fontmanager.h src/core/fontmanager.cpp
+    src/core/theme.h src/core/theme.cpp
 
     src/writing/writingtab.h src/writing/writingtab.cpp
     src/writing/canvasview.h src/writing/canvasview.cpp
@@ -31,6 +32,7 @@ qt_add_executable(Olamon
     src/writing/tools/transformtool.h src/writing/tools/transformtool.cpp
     src/writing/paragraphitem.h src/writing/paragraphitem.cpp
     src/writing/paragraphitem.h src/writing/paragraphitem.cpp
+    src/core/theme.h src/core/theme.cpp
 )
 
 # lets the code keep using plain includes like "document.h"

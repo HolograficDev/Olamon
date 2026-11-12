@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QWheelEvent>
 #include <cmath>
+#include "theme.h"
 
 CanvasView::CanvasView(QWidget *parent)
     : QGraphicsView(parent)
@@ -16,7 +17,7 @@ CanvasView::CanvasView(QWidget *parent)
     scene = new QGraphicsScene(this);
     setScene(scene);
 
-    setBackgroundBrush(QColor("#3c3c3c"));
+    setBackgroundBrush(Theme::workspace());
     setFrameShape(QFrame::NoFrame);
     setRenderHint(QPainter::Antialiasing);
     setRenderHint(QPainter::SmoothPixmapTransform);

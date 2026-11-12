@@ -21,6 +21,7 @@
 #include "texttool.h"
 #include "transformtool.h"
 #include <QVBoxLayout>
+#include "theme.h"
 
 // draws a tool icon in code, swap this for svg files later
 static QPixmap drawToolIcon(int type, const QColor &color)
@@ -135,11 +136,12 @@ QWidget *WritingTab::createToolPanel()
     layout->addStretch();
 
     // status box at the bottom
+    /*
     statusLabel = new QLabel;
     statusLabel->setWordWrap(true);
     statusLabel->setStyleSheet("padding: 4px; border: 1px solid palette(mid); border-radius: 3px;");
     layout->addWidget(statusLabel);
-
+    */
     connect(toolGroup, &QButtonGroup::idClicked, this, &WritingTab::setTool);
     toolGroup->button(0)->setChecked(true);
     return panel;
@@ -172,8 +174,9 @@ QWidget *WritingTab::createCanvasArea()
 {
     QFrame *area = new QFrame;
     area->setObjectName("canvasArea");
-    area->setStyleSheet("#canvasArea { background: #3c3c3c; } "
-                        "#canvasArea QLabel { color: #aaaaaa; }");
+    area->setStyleSheet(QString("#canvasArea { background: %1; } "
+                                "#canvasArea QLabel { color: %2; }")
+                            .arg(Theme::workspace().name(), Theme::mutedText().name()));
 
     canvasStack = new QStackedWidget;
 
@@ -239,7 +242,7 @@ void WritingTab::setTool(int index)
 
 void WritingTab::setStatus(const QString &text)
 {
-    statusLabel->setText(text);
+    emit statusChanged(text);
 }
 void WritingTab::newCanvas()
 {

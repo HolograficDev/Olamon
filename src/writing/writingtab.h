@@ -20,7 +20,8 @@ public:
 
     void setStatus(const QString &text);   // shows in the box under the tools
     void newCanvas();                      // opens the dialog and makes a new document
-
+signals:
+    void statusChanged(const QString &text);   // main window shows this in its status bar
 private:
     QWidget *createToolPanel();
     QWidget *createOptionsPanel();
@@ -31,7 +32,7 @@ private:
     QButtonGroup *toolGroup;
     QLabel *optionsTitle;
     QStackedWidget *optionsStack; // one options widget per tool
-    QLabel *statusLabel;
+    //QLabel *statusLabel;
 
     Document *document = nullptr;
     QStackedWidget *canvasStack;  // 0 = "no canvas yet", 1 = the editor

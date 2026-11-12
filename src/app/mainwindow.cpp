@@ -61,7 +61,11 @@ void MainWindow::createModeMenu()
 
         // writing gets the real tab, the rest are still empty labels
         if (i == 0) {
-            pages->addWidget(new WritingTab);
+            WritingTab *writing = new WritingTab;
+            connect(writing, &WritingTab::statusChanged, this, [this](const QString &text) {
+                statusBar()->showMessage(text);
+            });
+            pages->addWidget(writing);
         } else {
             QLabel *page = new QLabel;
             page->setAlignment(Qt::AlignCenter);

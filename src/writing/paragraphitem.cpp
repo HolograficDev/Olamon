@@ -1,5 +1,5 @@
 #include "paragraphitem.h"
-
+#include "theme.h"
 #include <QPainter>
 #include <QPen>
 
@@ -21,7 +21,7 @@ void ParagraphItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, Q
     painter->fillRect(r, color);
 
     // outline is only for editing, cosmetic keeps it 1px at any zoom
-    QPen pen(QColor(90, 140, 255), 1, Qt::DashLine);
+    QPen pen(Theme::accent(), 1, Qt::DashLine);
     pen.setCosmetic(true);
     painter->setPen(pen);
     painter->setBrush(Qt::NoBrush);
