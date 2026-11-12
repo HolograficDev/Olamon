@@ -13,11 +13,12 @@ public:
     static QColor workspace();   // the area around the page
     static QColor mutedText();
     static QColor accent();
-
+    static QColor guide();       // snap lines
 private:
     static QColor workspaceColor;
     static QColor mutedColor;
     static QColor accentColor;
+    static QColor guideColor;
 };
 
 #endif // THEME_H

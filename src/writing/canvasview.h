@@ -8,7 +8,7 @@ class Document;
 class PageItem;
 struct CanvasSettings;
 class Tool;
-
+class ParagraphItem;
 class CanvasView : public QGraphicsView
 {
     Q_OBJECT
@@ -19,6 +19,8 @@ public:
     void setDocument(Document *document);
     void setTool(Tool *tool);
     PageItem *pageItem() const { return page; }
+    ParagraphItem *paragraphAt(const QPointF &scenePos) const;   // topmost box under that point
+    QList<ParagraphItem *> paragraphs() const;   // every box on the page
 
 public slots:
     void fitPage();      // whole page visible
@@ -26,7 +28,7 @@ public slots:
 
 signals:
     void zoomChanged(double zoom);   // 1.0 = 100%
-
+    void pageAboutToReset();   // the page and everything on it is about to be deleted
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;

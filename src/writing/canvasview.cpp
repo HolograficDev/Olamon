@@ -10,6 +10,7 @@
 #include <QWheelEvent>
 #include <cmath>
 #include "theme.h"
+#include "paragraphitem.h"
 
 CanvasView::CanvasView(QWidget *parent)
     : QGraphicsView(parent)
@@ -40,11 +41,15 @@ void CanvasView::setDocument(Document *document)
 }
 void CanvasView::setTool(Tool *tool)
 {
-    if (activeTool)
+    if (activeTool) {
         activeTool->deactivated();
+        disconnect(activeTool, &Tool::cursorChanged, this, &CanvasView::updateCursor);
+    }
     activeTool = tool;
-    if (activeTool)
+    if (activeTool) {
         activeTool->activated();
+        connect(activeTool, &Tool::cursorChanged, this, &CanvasView::updateCursor);
+    }
     updateCursor();
 }
 
@@ -60,8 +65,30 @@ void CanvasView::updateCursor()
     else
         viewport()->unsetCursor();
 }
+ParagraphItem *CanvasView::paragraphAt(const QPointF &scenePos) const
+{
+    // items() gives the top one first
+    for (QGraphicsItem *item : scene->items(scenePos)) {
+        if (ParagraphItem *p = qgraphicsitem_cast<ParagraphItem *>(item))
+            return p;
+    }
+    return nullptr;
+}
+QList<ParagraphItem *> CanvasView::paragraphs() const
+{
+    QList<ParagraphItem *> list;
+    if (!page)
+        return list;
+
+    for (QGraphicsItem *item : page->childItems()) {
+        if (ParagraphItem *p = qgraphicsitem_cast<ParagraphItem *>(item))
+            list.append(p);
+    }
+    return list;
+}
 void CanvasView::buildPage(const CanvasSettings &settings)
 {
+    emit pageAboutToReset();
     scene->clear();   // deletes the old page too
 
     page = new PageItem(QSize(settings.width, settings.height), settings.background);
@@ -166,6 +193,12 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         spaceDown = true;
         updateCursor();
+        return;
+    }
+
+    // tools get keys too, delete in the transform tool for example
+    if (activeTool && activeTool->keyPressed(event->key())) {
+        event->accept();
         return;
     }
     QGraphicsView::keyPressEvent(event);

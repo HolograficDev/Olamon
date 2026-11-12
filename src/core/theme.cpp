@@ -8,7 +8,8 @@
 QColor Theme::workspaceColor;
 QColor Theme::mutedColor;
 QColor Theme::accentColor;
-
+QColor Theme::guideColor;
+QColor Theme::guide() { return guideColor; }
 QColor Theme::workspace() { return workspaceColor; }
 QColor Theme::mutedText() { return mutedColor; }
 QColor Theme::accent() { return accentColor; }
@@ -29,7 +30,7 @@ void Theme::applyAmoled()
     workspaceColor = QColor(18, 18, 18);
     mutedColor = QColor(170, 170, 170);
     accentColor = QColor(74, 140, 255);
-
+    guideColor = QColor(255, 64, 200);
     QPalette p;
     p.setColor(QPalette::Window, black);
     p.setColor(QPalette::WindowText, text);

@@ -6,7 +6,10 @@ Tool::Tool(QObject *parent)
     : QObject(parent)
 {
 }
-
+bool Tool::keyPressed(int)
+{
+    return false;
+}
 Qt::CursorShape Tool::cursor() const
 {
     return Qt::ArrowCursor;

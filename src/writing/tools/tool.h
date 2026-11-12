@@ -32,9 +32,11 @@ public:
     virtual void mousePressed(const QPointF &scenePos);
     virtual void mouseMoved(const QPointF &scenePos);
     virtual void mouseReleased(const QPointF &scenePos);
-
+    // return true if the tool used the key
+    virtual bool keyPressed(int key);
 signals:
-    void status(const QString &text);   // shows in the status box
+    void status(const QString &text);   // shows in the status bar
+    void cursorChanged();               // tool wants the canvas cursor refreshed
 
 protected:
     virtual QWidget *createOptionsWidget() = 0;
