@@ -27,7 +27,7 @@ private:
     void sizeEdited();
     void pickColor();
     void pickFolder();
-    void updateColorButton();
+    //void updateColorButton();
 
     QLineEdit *nameEdit;
     QLineEdit *folderEdit;

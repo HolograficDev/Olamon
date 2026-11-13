@@ -2,7 +2,7 @@
 #include "canvasview.h"
 #include "pageitem.h"
 #include "paragraphitem.h"
-
+#include "uiutils.h"
 #include <QCheckBox>
 #include <QColorDialog>
 #include <QFormLayout>
@@ -26,7 +26,7 @@ QWidget *DrawParagraphTool::createOptionsWidget()
 
     colorButton = new QPushButton;
     colorButton->setDisabled(transparent);
-    updateColorButton();
+    styleColorButton(colorButton, boxColor);
 
     QCheckBox *transparentBox = new QCheckBox("Transparent");
     transparentBox->setChecked(transparent);
@@ -51,7 +51,7 @@ QWidget *DrawParagraphTool::createOptionsWidget()
         QColor picked = QColorDialog::getColor(boxColor, w, "Box color");
         if (picked.isValid()) {
             boxColor = picked;
-            updateColorButton();
+            styleColorButton(colorButton, boxColor);
         }
     });
     connect(transparentBox, &QCheckBox::toggled, this, [this](bool on) {
@@ -64,7 +64,7 @@ QWidget *DrawParagraphTool::createOptionsWidget()
 
     return w;
 }
-
+/*
 void DrawParagraphTool::updateColorButton()
 {
     QString textColor = boxColor.lightness() > 128 ? "black" : "white";
@@ -74,7 +74,7 @@ void DrawParagraphTool::updateColorButton()
                                    "QPushButton:disabled { background: palette(window); color: palette(mid); border: 1px solid palette(mid); }")
                                    .arg(boxColor.name(), textColor));
 }
-
+*/
 QColor DrawParagraphTool::currentColor() const
 {
     return transparent ? QColor(0, 0, 0, 0) : boxColor;

@@ -190,7 +190,10 @@ void CanvasView::mouseReleaseEvent(QMouseEvent *event)
 
 void CanvasView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
+    // a text box is being edited, so space is just a space
+    bool typing = scene->focusItem() != nullptr;
+
+    if (!typing && event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         spaceDown = true;
         updateCursor();
         return;

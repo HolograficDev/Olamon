@@ -1,9 +1,15 @@
 #include "paragraphitem.h"
+#include "fontmanager.h"
 #include "theme.h"
 
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsTextItem>
 #include <QLineF>
 #include <QPainter>
 #include <QPen>
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QTextOption>
 
 // handle sizes are in screen pixels, pixelScale turns them into scene units
 static const double handleHalf = 5;        // drawn size
@@ -19,6 +25,15 @@ static const ParagraphItem::Handle sizers[] = {
 ParagraphItem::ParagraphItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
 {
+    setFlag(ItemClipsChildrenToShape);   // text can't spill out of the box
+
+    text = new QGraphicsTextItem(this);
+    text->setDefaultTextColor(Qt::black);   // text color options come in the next stage
+    text->setFont(FontManager::font(defaultTextSize));
+    text->document()->setDocumentMargin(6);
+    text->setTextInteractionFlags(Qt::NoTextInteraction);
+    text->setAcceptedMouseButtons(Qt::NoButton);   // only takes clicks while editing
+    setAlignment(Qt::AlignLeft);
 }
 
 QRectF ParagraphItem::box() const
@@ -103,16 +118,26 @@ ParagraphItem::Handle ParagraphItem::handleAt(const QPointF &p) const
 
     return box().contains(p) ? Body : None;
 }
+
 // bounding rect of the rotated box, this is what snapping works with
 QRectF ParagraphItem::pageRect() const
 {
     return mapRectToParent(box());
 }
+
+// text follows the box, top left corner and the width of the box
+void ParagraphItem::layoutText()
+{
+    text->setTextWidth(qMax(1.0, boxSize.width()));
+    text->setPos(-boxSize.width() / 2, -boxSize.height() / 2);
+}
+
 void ParagraphItem::setCorners(const QPointF &a, const QPointF &b)
 {
     prepareGeometryChange();
     boxSize = QSizeF(qAbs(a.x() - b.x()), qAbs(a.y() - b.y()));
     setPos((a + b) / 2);
+    layoutText();
 }
 
 QSizeF ParagraphItem::size() const
@@ -124,6 +149,7 @@ void ParagraphItem::setSize(const QSizeF &size)
 {
     prepareGeometryChange();
     boxSize = size;
+    layoutText();
     update();
 }
 
@@ -146,6 +172,56 @@ int ParagraphItem::textSize() const
 void ParagraphItem::setTextSize(int pixels)
 {
     defaultTextSize = pixels;
+    text->setFont(FontManager::font(pixels));
+}
+
+Qt::Alignment ParagraphItem::alignment() const
+{
+    return align;
+}
+
+void ParagraphItem::setAlignment(Qt::Alignment a)
+{
+    align = a;
+
+    QTextOption option = text->document()->defaultTextOption();
+    option.setAlignment(a);
+    option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);   // long words wrap too
+    text->document()->setDefaultTextOption(option);
+}
+
+QGraphicsTextItem *ParagraphItem::textItem() const
+{
+    return text;
+}
+
+void ParagraphItem::setEditing(bool on)
+{
+    editing = on;
+    text->setTextInteractionFlags(on ? Qt::TextEditorInteraction : Qt::NoTextInteraction);
+    text->setAcceptedMouseButtons(on ? Qt::AllButtons : Qt::NoButton);
+
+    if (on) {
+        text->setFocus(Qt::OtherFocusReason);
+    } else {
+        text->clearFocus();
+
+        // don't leave a selection highlighted behind
+        QTextCursor cursor = text->textCursor();
+        cursor.clearSelection();
+        text->setTextCursor(cursor);
+    }
+}
+
+// clicking the empty part of a box that is being edited shouldn't drop the keyboard focus
+void ParagraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (editing) {
+        text->setFocus(Qt::MouseFocusReason);
+        event->accept();
+        return;
+    }
+    QGraphicsItem::mousePressEvent(event);
 }
 
 void ParagraphItem::setActive(bool isActive)

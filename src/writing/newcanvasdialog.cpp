@@ -1,5 +1,5 @@
 #include "newcanvasdialog.h"
-
+#include "uiutils.h"
 #include <QCheckBox>
 #include <QColorDialog>
 #include <QComboBox>
@@ -55,7 +55,7 @@ NewCanvasDialog::NewCanvasDialog(QWidget *parent)
 
     colorButton = new QPushButton;
     transparentBox = new QCheckBox("Transparent");
-    updateColorButton();
+    styleColorButton(colorButton, color);
 
     // default folder comes from the settings, app options will change this later
     QSettings settings;
@@ -154,7 +154,7 @@ void NewCanvasDialog::pickColor()
     QColor picked = QColorDialog::getColor(color, this, "Background color");
     if (picked.isValid()) {
         color = picked;
-        updateColorButton();
+        styleColorButton(colorButton, color);
     }
 }
 
@@ -164,7 +164,7 @@ void NewCanvasDialog::pickFolder()
     if (!folder.isEmpty())
         folderEdit->setText(folder);
 }
-
+/*
 void NewCanvasDialog::updateColorButton()
 {
     QString textColor = color.lightness() > 128 ? "black" : "white";
@@ -174,3 +174,4 @@ void NewCanvasDialog::updateColorButton()
                                    "QPushButton:disabled { background: palette(window); color: palette(mid); border: 1px solid palette(mid); }")
                                    .arg(color.name(), textColor));
 }
+*/

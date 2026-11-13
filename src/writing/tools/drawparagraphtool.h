@@ -27,7 +27,7 @@ protected:
     QWidget *createOptionsWidget() override;
 
 private:
-    void updateColorButton();
+    //void updateColorButton();
     QColor currentColor() const;
 
     QPushButton *colorButton = nullptr;
